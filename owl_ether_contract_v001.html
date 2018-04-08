@@ -1,0 +1,149 @@
+pragma solidity ^0.4.0;
+
+contract owl_ether_contract_v001 {
+    address creator;
+    uint256 creation_time;
+    
+    bytes task_description;
+    uint256 max_committers;
+    uint256[] payout_lows;
+    uint256[] payout_highs;
+    uint256 commit_deadline;
+    uint256 submit_result_deadline;
+    uint256 submit_review_deadline;
+    uint256 submit_rebuttle_deadline;
+    
+    address[] committers_array;
+    mapping(address => bool) committers_set;
+    
+    mapping(address => bool) results_submitted;
+    mapping(address => bytes) results;
+    
+    mapping(address => bool) reviews_submitted;
+    mapping(address => bytes) reviews;
+    mapping(uint256 => address) used_ranks;
+    mapping(address => uint256) ranks;
+    mapping(address => uint256) payouts;
+    
+    mapping(address => bool) rebuttles_submitted;
+    mapping(address => bytes) rebuttles;
+    
+    mapping(address => uint256) paids;
+
+    function owl_ether_contract_v001(
+        bytes _task_description,
+        uint256[] _payout_lows,
+        uint256[] _payout_highs,
+        uint256 _commit_deadline,
+        uint256 _submit_result_deadline,
+        uint256 _submit_review_deadline,
+        uint256 _submit_rebuttle_deadline) payable {
+            
+        creator = msg.sender;
+        creation_time = now;
+            
+        task_description = _task_description;
+        require(payout_highs.length == payout_lows.length);
+        max_committers = _payout_lows.length;
+        payout_lows = _payout_lows;
+        payout_highs = _payout_highs;
+        commit_deadline = _commit_deadline;
+        submit_result_deadline = _submit_result_deadline;
+        submit_review_deadline = _submit_review_deadline;
+        submit_rebuttle_deadline = _submit_rebuttle_deadline;
+        
+        uint256 max_payout = 0;
+        for (uint256 i = 0; i < payout_highs.length; i++) {
+            max_payout += payout_highs[i];
+        }
+        require(this.balance == max_payout);
+    }
+
+    function commit() public {
+        require(now < commit_deadline);
+        require(msg.sender != creator);
+        require(!committers_set[msg.sender]);
+        require(committers_array.length + 1 < max_committers);
+        
+        committers_array.push(msg.sender);
+        committers_set[msg.sender] = true;
+    }
+
+    function submit_result(bytes result) public {
+        require(now < submit_result_deadline);
+        require(committers_set[msg.sender]);
+        require(!results_submitted[msg.sender]);
+        
+        results_submitted[msg.sender] = true;
+        results[msg.sender] = result;
+    }
+
+    function submit_review(address them, bytes review, uint256 rank, uint256 payout) public {
+        require(now < submit_review_deadline);
+        require(msg.sender == creator);
+        require(results_submitted[them]);
+        require(!reviews_submitted[them]);
+        require(rank >= 1 && rank <= committers_array.length);
+        require(used_ranks[rank] == 0);
+        require(payout >= payout_lows[rank] && payout <= payout_highs[rank]);
+        
+        reviews_submitted[them] = true;
+        reviews[them] = review;
+        ranks[them] = rank;
+        used_ranks[rank] = them;
+        payouts[them] = payout;
+    }
+
+    function submit_rebuttle(bytes rebuttle) public {
+        require(now < submit_rebuttle_deadline);
+        require(committers_set[msg.sender]);
+        require(!rebuttles_submitted[msg.sender]);
+        
+        rebuttles_submitted[msg.sender] = true;
+        rebuttles[msg.sender] = rebuttle;
+        collect_payout();
+    }
+    
+    function collect_payout() public {
+        require(results_submitted[msg.sender]);
+        
+        if (now > submit_review_deadline && ranks[msg.sender] == 0) {
+            uint256 rank = 1;
+            while (used_ranks[rank] != 0) { rank++; }
+            
+            ranks[msg.sender] = rank;
+            used_ranks[rank] = msg.sender;
+            payouts[msg.sender] = payout_highs[rank];
+        }
+        
+        if (paids[msg.sender] < payouts[msg.sender]) {
+            msg.sender.send(payouts[msg.sender] - paids[msg.sender]);
+            paids[msg.sender] += payouts[msg.sender];
+        }
+    }
+    
+    function collect_leftover() public {
+        require(msg.sender == creator);
+        
+        if (now > submit_result_deadline) {
+            uint256 leftover = 0;
+            for (uint256 rank = 0; rank < committers_array.length; rank++) {
+                uint256 payout = 0;
+                address committer = used_ranks[rank];
+                if (committer != 0) {
+                    payout = payouts[committer];
+                } else if (results_submitted[committer]) {
+                    payout = payout_highs[rank];
+                }
+                leftover += payout_highs[rank] - payout;
+            }
+            for (rank = committers_array.length; rank < max_committers; rank++) {
+                leftover += payout_highs[rank];
+            }
+            if (leftover > paids[msg.sender]) {
+                msg.sender.send(leftover);
+                paids[msg.sender] += leftover;
+            }
+        }
+    }
+}
