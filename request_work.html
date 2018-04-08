@@ -12,6 +12,12 @@
 <script src="https://dglittle.github.io/github-oauth/index.js"></script>
 <script src="https://cdn.jsdelivr.net/ace/1.1.8/min/ace.js"></script>
 <script src="https://cdn.jsdelivr.net/ace/1.1.8/min/ext-language_tools.js"></script>
+
+<div style="background:lightgrey;padding:10px">
+<span style="color:black;font-weight:bold">o</span><span style="color:white">pen</span><span style="color:black;font-weight:bold">w</span><span style="color:white">ork</span><span style="color:black;font-weight:bold">l</span><span style="color:white">ist</span>
+<button style="margin-left:20px;border-radius:20px;height:40px;font-size:20px;border:0px;">&nbsp;REQUEST WORK&nbsp;</button>
+</div>
+
 <script>
     
 var db = {}
@@ -39,9 +45,7 @@ $(function () {
 })
 
 function main() {
-    $('body').empty()
-    
-    var input = $('<div id="input" style="width:100%;height:100%"/>')
+    var input = $('<div id="input" style="width:50%;height:100%;float:right"/>')
     $('body').append(input)
 
     ace.require("ace/ext/language_tools")
