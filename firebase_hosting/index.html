@@ -1,0 +1,24 @@
+
+<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
+<script>
+
+var config = {
+    apiKey: "AIzaSyBLV5t8a-gGxnr5ZoS0znAZLNCemTCBAWo",
+    authDomain: "openworklist.firebaseapp.com",
+    projectId: "openworklist",
+}
+firebase.initializeApp(config)
+var db = firebase.firestore()
+
+db.doc('public/index.js').get().then(function(doc) {
+    if (doc.exists) {
+        eval(doc.data().text)
+    } else {
+        throw 'bad'
+    }
+}).catch(function(error) {
+    throw 'bad'
+})
+
+</script>
