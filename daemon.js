@@ -72,8 +72,9 @@ function do_it(net) {
 								}
 							})
 						} else {
+							next_block = max_block_number + 1
 							g_ref.update({
-								next_block : max_block_number + 1
+								next_block : next_block
 							}).then(function () {
 								setTimeout(loop, etherscan_delay)
 							})
