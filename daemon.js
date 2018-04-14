@@ -35,9 +35,9 @@ function do_it(net) {
 					var i = 0
 					function loop2() {
 						if (i < x.result.length) {
-							console.log(net + ' : getting trans : ' + r.transactionHash)
 							var r = x.result[i]
 							i++
+							console.log(net + ' : getting trans : ' + r.transactionHash)
 							wget({
 								host: g.host,
 								path: '/api?module=proxy&' +
