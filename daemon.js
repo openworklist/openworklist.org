@@ -27,7 +27,13 @@ function do_it(net) {
 					'&toBlock=latest&topic0=0x0000000000000000000000000000000000000000' + OWL_MSG.v_hex +
 					'&apikey=' + etherscanApiKey
 			}, function (x) {
-				x = JSON.parse(x)
+				try {
+					x = JSON.parse(x)
+				} catch (e) {
+					console.log('e: ' + e + ', x: ' + x)
+					setTimeout(loop, etherscan_delay)
+					return
+				}
 				if (x.status == '0' && x.message == 'No records found') {
 					setTimeout(loop, etherscan_delay)
 				} else if (x.status == '1' && x.message == 'OK') {
