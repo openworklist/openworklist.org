@@ -20,7 +20,7 @@ function do_it(net) {
 		g = g.data()
 		var next_block = g.next_block
 		function loop() {
-			console.log(net + ' : getting block : ' + next_block)
+			console.log(net + ' : getting block : ' + next_block + ' : at ' + Date.now())
 			wget({
 				host: g.host,
 				path: '/api?module=logs&action=getLogs&fromBlock=' + next_block +
@@ -48,7 +48,7 @@ function do_it(net) {
 						if (i < x.result.length) {
 							var r = x.result[i]
 							i++
-							console.log(net + ' : getting trans : ' + r.transactionHash)
+							console.log(net + ' : getting trans : ' + r.transactionHash + ' : at ' + Date.now())
 							wget({
 								host: g.host,
 								path: '/api?module=proxy&' +
