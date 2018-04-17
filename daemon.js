@@ -80,10 +80,9 @@ function do_it(net) {
 									}
 									firestore.collection(g.trans_collection).doc(
 										r.transactionHash.substr(2)).set({
-										    input : input,
+										    info : x.result,
 										    decode : decode,
-										    parent : padZeros(decode.parent.substr(2), 64),
-										    from : x.result.from
+										    parent : padZeros(decode.parent.substr(2), 64)
 									}).then(function() {
 										setTimeout(loop2, etherscan_delay)
 									})
