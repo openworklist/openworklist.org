@@ -27,6 +27,11 @@ function do_it(net) {
 					'&toBlock=latest&topic0=0x0000000000000000000000000000000000000000' + OWL_MSG.v_hex +
 					'&apikey=' + etherscanApiKey
 			}, function (x) {
+				if (x == null) {
+					console.log('wget encountered an error')
+					setTimeout(loop, etherscan_delay)
+					return
+				}
 				try {
 					x = JSON.parse(x)
 				} catch (e) {
@@ -51,6 +56,11 @@ function do_it(net) {
 									r.transactionHash +
 									'&apikey=' + etherscanApiKey
 							}, function (x) {
+								if (x == null) {
+									console.log('wget encountered an error')
+									setTimeout(loop, etherscan_delay)
+									return
+								}
 								x = JSON.parse(x)
 								if (x.result) {
 									var block_number = parseInt(x.result.blockNumber.substr(2), 16)
@@ -108,6 +118,6 @@ function wget(options, cb) {
 			cb(data.join(''))
 		})
 	}).on('error', function(e) {
-		throw 'bad'
+		cb(null)
 	})
 }
