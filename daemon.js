@@ -82,7 +82,7 @@ function do_it(net) {
 										r.transactionHash.substr(2)).set({
 										    input : input,
 										    decode : decode,
-										    parent : decode.parent,
+										    parent : padZeros(decode.parent.substr(2), 64),
 										    from : x.result.from
 									}).then(function() {
 										setTimeout(loop2, etherscan_delay)
@@ -120,4 +120,10 @@ function wget(options, cb) {
 	}).on('error', function(e) {
 		cb(null)
 	})
+}
+
+function padZeros(s, n) {
+    n = n - s.length
+    if (n <= 0) return s;
+    return '0'.repeat(n) + s
 }
